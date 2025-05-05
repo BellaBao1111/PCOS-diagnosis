@@ -10,8 +10,8 @@ app = Flask(__name__)
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Load model and scaler
-model_path = os.path.join(current_dir, 'pcos_model3.pkl')
-scaler_path = os.path.join(current_dir, 'pcos_scaler3.pkl')
+model_path = os.path.join(current_dir, 'logistic_selected_model.pkl')
+scaler_path = os.path.join(current_dir, 'scaler_selected_model.pkl')
 
 print(f"Model path: {model_path}")
 print(f"Scaler path: {scaler_path}")
@@ -20,19 +20,20 @@ print(f"Scaler file exists: {os.path.exists(scaler_path)}")
 
 model = joblib.load(model_path)
 scaler = joblib.load(scaler_path)
+print("Using scaler for Free Testosterone, DHEAS, FSH")
 
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
         data = request.get_json()
         
-        # Extract features
-        epitestosterone = float(data['epitestosterone'])
-        insulin = float(data['insulin'])
-        androstanolone = float(data['androstanolone'])
+        # Extract features - updated to new hormone inputs
+        free_testosterone = float(data['free_testosterone'])
+        dheas = float(data['dheas'])
+        fsh = float(data['fsh'])
         
         # Prepare features
-        features = np.array([[epitestosterone, insulin, androstanolone]])
+        features = np.array([[free_testosterone, dheas, fsh]])
         
         # Scale features
         scaled_features = scaler.transform(features)
@@ -55,9 +56,9 @@ def predict():
             'probability': probability.tolist(),
             'riskScore': round(probability[1] * 100),
             'featureImportance': {
-                'epitestosterone': feature_importance[0],
-                'insulin': feature_importance[1],
-                'androstanolone': feature_importance[2]
+                'free_testosterone': feature_importance[0],
+                'dheas': feature_importance[1],
+                'fsh': feature_importance[2]
             },
             'decisionBoundaryDistance': decision_function
         }

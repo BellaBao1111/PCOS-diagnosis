@@ -217,7 +217,7 @@ const GaugeValue = styled.div`
   text-align: center;
   font-size: 1.5rem;
   font-weight: 600;
-  color: ${props => props.value > 70 ? 'var(--danger)' : 'var(--text-light)'};
+  color: white;
 `;
 
 const HormoneDetails = styled.div`
@@ -360,50 +360,25 @@ const ThreeColumnsGrid = styled.div`
 `;
 
 const ResultsDisplay = ({ result }) => {
-  // Determine normal ranges for each hormone
-  const ranges = {
-    epitestosterone: { min: 0.5, max: 5.0 },
-    insulin: { min: 2.0, max: 20.0 },
-    androstanolone: { min: 0.2, max: 3.0 },
+  // Normal ranges for the hormones
+  const normalRanges = {
+    free_testosterone: { min: 0.1, max: 6.8, unit: 'pg/mL' },
+    dheas: { min: 35, max: 43, unit: 'µg/dL' },
+    fsh: { min: 4.7, max: 21.5, unit: 'mIU/mL' }
   };
 
-  // Calculate status for each marker
+  // Determine if a hormone value is low, normal, or high based on normal ranges
   const getHormoneStatus = (hormone, value) => {
-    if (!ranges[hormone]) return 'normal';
-    if (value > ranges[hormone].max) return 'high';
-    if (value < ranges[hormone].min) return 'low';
+    if (value < normalRanges[hormone].min) return 'low';
+    if (value > normalRanges[hormone].max) return 'high';
     return 'normal';
   };
 
-  // Calculate percentage of value within normal range (or above)
+  // Calculate the percentage of a value within the normal range for gauge display
   const getPercentageOfRange = (hormone, value) => {
-    if (!ranges[hormone]) return 50;
-    const max = ranges[hormone].max;
-    // Cap at 150% of max for display purposes
-    return Math.min((value / max) * 100, 150);
-  };
-
-  // Process feature importance for visualization
-  const processFeatureImportance = () => {
-    if (!result.featureImportance) return [];
-    
-    const features = Object.entries(result.featureImportance).map(([name, value]) => ({
-      name, 
-      value: Math.abs(value),
-      sign: value >= 0 ? 'positive' : 'negative',
-      color: value >= 0 ? 'rgba(75, 192, 192, 0.8)' : 'rgba(255, 89, 94, 0.8)'
-    }));
-    
-    // Sort by absolute importance
-    features.sort((a, b) => b.value - a.value);
-    
-    // Calculate percentage based on max value
-    const maxValue = Math.max(...features.map(f => f.value));
-    features.forEach(feature => {
-      feature.percent = (feature.value / maxValue) * 100;
-    });
-    
-    return features;
+    const range = normalRanges[hormone].max - normalRanges[hormone].min;
+    const position = value - normalRanges[hormone].min;
+    return Math.min(Math.max((position / range) * 100, 0), 100);
   };
 
   // Prepare data for risk score gauge chart
@@ -438,22 +413,22 @@ const ResultsDisplay = ({ result }) => {
 
   // Prepare data for hormone comparison bar chart
   const compareData = {
-    labels: ['Epitestosterone', 'Insulin', 'Androstanolone'],
+    labels: ['Testosterone', 'DHEAS', 'FSH'],
     datasets: [
       {
         label: 'Patient Values',
         data: [
-          result.hormoneData.epitestosterone,
-          result.hormoneData.insulin,
-          result.hormoneData.androstanolone,
+          result.hormoneData.free_testosterone,
+          result.hormoneData.dheas,
+          result.hormoneData.fsh
         ],
         backgroundColor: [
-          'rgba(255, 89, 94, 0.7)',
+          'rgba(255, 99, 132, 0.7)',
           'rgba(54, 162, 235, 0.7)',
           'rgba(255, 206, 86, 0.7)',
         ],
         borderColor: [
-          'rgba(255, 89, 94, 1)',
+          'rgba(255, 99, 132, 1)',
           'rgba(54, 162, 235, 1)',
           'rgba(255, 206, 86, 1)',
         ],
@@ -462,9 +437,9 @@ const ResultsDisplay = ({ result }) => {
       {
         label: 'Normal Max',
         data: [
-          ranges.epitestosterone.max,
-          ranges.insulin.max,
-          ranges.androstanolone.max,
+          normalRanges.free_testosterone.max,
+          normalRanges.dheas.max,
+          normalRanges.fsh.max,
         ],
         backgroundColor: 'rgba(0, 0, 0, 0)',
         borderColor: 'rgba(75, 192, 192, 0.8)',
@@ -555,9 +530,6 @@ const ResultsDisplay = ({ result }) => {
     cutout: '60%'
   };
 
-  // Feature importance data
-  const featureImportance = processFeatureImportance();
-
   // Prepare data for decision boundary visualization
   const decisionBoundaryData = {
     labels: Array.from({ length: 11 }, (_, i) => i * 10),
@@ -641,39 +613,40 @@ const ResultsDisplay = ({ result }) => {
 
   // Feature correlation radar chart
   const featureCorrelationData = {
-    labels: ['Epitestosterone', 'Insulin', 'Androstanolone'],
+    labels: ['Testosterone', 'DHEAS', 'FSH'],
     datasets: [
       {
         label: 'Current Patient',
         data: [
           // Normalize to 0-100 scale based on typical ranges
-          Math.min(100, (result.hormoneData.epitestosterone / ranges.epitestosterone.max) * 100),
-          Math.min(100, (result.hormoneData.insulin / ranges.insulin.max) * 100),
-          Math.min(100, (result.hormoneData.androstanolone / ranges.androstanolone.max) * 100),
+          Math.min(100, (result.hormoneData.free_testosterone / normalRanges.free_testosterone.max) * 100),
+          Math.min(100, (result.hormoneData.dheas / normalRanges.dheas.max) * 100),
+          // Invert the FSH scale since lower values are associated with PCOS
+          100 - Math.min(100, (result.hormoneData.fsh / normalRanges.fsh.max) * 100),
         ],
-        backgroundColor: 'rgba(255, 89, 94, 0.2)',
-        borderColor: 'rgba(255, 89, 94, 0.8)',
-        pointBackgroundColor: 'rgba(255, 89, 94, 1)',
+        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+        borderColor: 'rgba(255, 99, 132, 0.8)',
+        pointBackgroundColor: 'rgba(255, 99, 132, 1)',
         pointBorderColor: '#fff',
         pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: 'rgba(255, 89, 94, 1)',
+        pointHoverBorderColor: 'rgba(255, 99, 132, 1)',
         pointRadius: 4,
       },
       {
         label: 'Typical PCOS',
-        data: [80, 85, 75], // Typical values for PCOS patients (higher values)
-        backgroundColor: 'rgba(255, 89, 94, 0.1)',
-        borderColor: 'rgba(255, 89, 94, 0.4)',
-        pointBackgroundColor: 'rgba(255, 89, 94, 0.6)',
+        data: [80, 85, 70], // High testosterone, high DHEAS, low FSH (inverted scale)
+        backgroundColor: 'rgba(255, 99, 132, 0.1)',
+        borderColor: 'rgba(255, 99, 132, 0.4)',
+        pointBackgroundColor: 'rgba(255, 99, 132, 0.6)',
         pointBorderColor: '#fff',
         pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: 'rgba(255, 89, 94, 0.6)',
+        pointHoverBorderColor: 'rgba(255, 99, 132, 0.6)',
         pointRadius: 3,
         borderDash: [3, 3],
       },
       {
         label: 'Typical Non-PCOS',
-        data: [50, 45, 40], // Typical values for non-PCOS patients (lower values)
+        data: [40, 45, 30], // Low testosterone, low DHEAS, high FSH (inverted scale)
         backgroundColor: 'rgba(75, 192, 192, 0.1)',
         borderColor: 'rgba(75, 192, 192, 0.4)',
         pointBackgroundColor: 'rgba(75, 192, 192, 0.6)',
@@ -732,36 +705,29 @@ const ResultsDisplay = ({ result }) => {
 
   // Feature impact visualization
   const getImpactScore = (feature, value, importance) => {
-    // Normalize the value relative to normal range and multiply by feature importance
-    const normalRange = ranges[feature];
-    const normalizedValue = (value - normalRange.min) / (normalRange.max - normalRange.min);
-    // Higher than normal range gets progressively higher scores
-    const scaledValue = value > normalRange.max 
-      ? 1 + 0.5 * ((value / normalRange.max) - 1) 
-      : normalizedValue;
-    
-    return scaledValue * Math.abs(importance) * 100;
+    const normalizedValue = value / normalRanges[feature].max;
+    return normalizedValue * importance * 100;
   };
 
   const featureImpactData = {
-    labels: ['Epitestosterone', 'Insulin', 'Androstanolone'],
+    labels: ['Testosterone', 'DHEAS', 'FSH'],
     datasets: [
       {
         label: 'Impact on Diagnosis',
         data: result.featureImportance ? [
-          getImpactScore('epitestosterone', result.hormoneData.epitestosterone, result.featureImportance.epitestosterone),
-          getImpactScore('insulin', result.hormoneData.insulin, result.featureImportance.insulin),
-          getImpactScore('androstanolone', result.hormoneData.androstanolone, result.featureImportance.androstanolone),
+          getImpactScore('free_testosterone', result.hormoneData.free_testosterone, result.featureImportance.free_testosterone),
+          getImpactScore('dheas', result.hormoneData.dheas, result.featureImportance.dheas),
+          getImpactScore('fsh', result.hormoneData.fsh, result.featureImportance.fsh)
         ] : [0, 0, 0],
         backgroundColor: [
-          result.featureImportance?.epitestosterone > 0 ? 'rgba(255, 89, 94, 0.7)' : 'rgba(75, 192, 192, 0.7)',
-          result.featureImportance?.insulin > 0 ? 'rgba(255, 89, 94, 0.7)' : 'rgba(75, 192, 192, 0.7)',
-          result.featureImportance?.androstanolone > 0 ? 'rgba(255, 89, 94, 0.7)' : 'rgba(75, 192, 192, 0.7)',
+          result.featureImportance?.free_testosterone > 0 ? 'rgba(255, 99, 132, 0.7)' : 'rgba(75, 192, 192, 0.7)',
+          result.featureImportance?.dheas > 0 ? 'rgba(255, 99, 132, 0.7)' : 'rgba(75, 192, 192, 0.7)',
+          result.featureImportance?.fsh > 0 ? 'rgba(255, 99, 132, 0.7)' : 'rgba(75, 192, 192, 0.7)',
         ],
         borderColor: [
-          result.featureImportance?.epitestosterone > 0 ? 'rgba(255, 89, 94, 1)' : 'rgba(75, 192, 192, 1)',
-          result.featureImportance?.insulin > 0 ? 'rgba(255, 89, 94, 1)' : 'rgba(75, 192, 192, 1)',
-          result.featureImportance?.androstanolone > 0 ? 'rgba(255, 89, 94, 1)' : 'rgba(75, 192, 192, 1)',
+          result.featureImportance?.free_testosterone > 0 ? 'rgba(255, 99, 132, 1)' : 'rgba(75, 192, 192, 1)',
+          result.featureImportance?.dheas > 0 ? 'rgba(255, 99, 132, 1)' : 'rgba(75, 192, 192, 1)',
+          result.featureImportance?.fsh > 0 ? 'rgba(255, 99, 132, 1)' : 'rgba(75, 192, 192, 1)',
         ],
         borderWidth: 1,
       }
@@ -863,49 +829,65 @@ const ResultsDisplay = ({ result }) => {
           
           <ModelInsightCard>
             <InsightTitle>Model Feature Importance</InsightTitle>
-            {featureImportance.map((feature) => (
-              <FeatureImportanceRow key={feature.name}>
-                <FeatureName>{feature.name}</FeatureName>
-                <ImportanceBarContainer>
-                  <ImportanceBar 
-                    percent={feature.percent} 
-                    color={feature.color}
-                  />
-                </ImportanceBarContainer>
-                <ImportanceValue>{feature.sign === 'positive' ? '+' : '-'}{feature.value.toFixed(3)}</ImportanceValue>
-              </FeatureImportanceRow>
-            ))}
+            {Object.entries(result.featureImportance || {}).map(([name, value]) => {
+              const absValue = Math.abs(value);
+              const total = 
+                Math.abs(result.featureImportance.free_testosterone || 0) + 
+                Math.abs(result.featureImportance.dheas || 0) + 
+                Math.abs(result.featureImportance.fsh || 0);
+              const percent = total > 0 ? (absValue / total) * 100 : 0;
+              const sign = value >= 0 ? 'positive' : 'negative';
+              const color = value >= 0 ? 'rgba(255, 99, 132, 0.8)' : 'rgba(75, 192, 192, 0.8)';
+              
+              // Format display name from the api property name
+              const displayName = name === 'free_testosterone' ? 'Testosterone' : 
+                               name === 'dheas' ? 'DHEAS' : 
+                               name === 'fsh' ? 'FSH' : name;
+              
+              return (
+                <FeatureImportanceRow key={name}>
+                  <FeatureName>{displayName}</FeatureName>
+                  <ImportanceBarContainer>
+                    <ImportanceBar 
+                      percent={percent} 
+                      color={color}
+                    />
+                  </ImportanceBarContainer>
+                  <ImportanceValue>{sign === 'positive' ? '+' : '-'}{absValue.toFixed(3)}</ImportanceValue>
+                </FeatureImportanceRow>
+              );
+            })}
           </ModelInsightCard>
           
           <HormoneDetails>
             <InsightTitle>Hormone Analysis</InsightTitle>
             <HormoneStatus>
-              <HormoneName>Epitestosterone</HormoneName>
-              <HormoneValue>{result.hormoneData.epitestosterone} ng/mL</HormoneValue>
+              <HormoneName>Testosterone</HormoneName>
+              <HormoneValue>{result.hormoneData.free_testosterone} {normalRanges.free_testosterone.unit}</HormoneValue>
               <HormoneBarContainer>
                 <HormoneBar 
-                  percent={getPercentageOfRange('epitestosterone', result.hormoneData.epitestosterone)} 
-                  status={getHormoneStatus('epitestosterone', result.hormoneData.epitestosterone)}
+                  percent={getPercentageOfRange('free_testosterone', result.hormoneData.free_testosterone)} 
+                  status={getHormoneStatus('free_testosterone', result.hormoneData.free_testosterone)}
                 />
               </HormoneBarContainer>
             </HormoneStatus>
             <HormoneStatus>
-              <HormoneName>Insulin</HormoneName>
-              <HormoneValue>{result.hormoneData.insulin} μIU/mL</HormoneValue>
+              <HormoneName>DHEAS</HormoneName>
+              <HormoneValue>{result.hormoneData.dheas} {normalRanges.dheas.unit}</HormoneValue>
               <HormoneBarContainer>
                 <HormoneBar 
-                  percent={getPercentageOfRange('insulin', result.hormoneData.insulin)} 
-                  status={getHormoneStatus('insulin', result.hormoneData.insulin)}
+                  percent={getPercentageOfRange('dheas', result.hormoneData.dheas)} 
+                  status={getHormoneStatus('dheas', result.hormoneData.dheas)}
                 />
               </HormoneBarContainer>
             </HormoneStatus>
             <HormoneStatus>
-              <HormoneName>Androstanolone</HormoneName>
-              <HormoneValue>{result.hormoneData.androstanolone} ng/mL</HormoneValue>
+              <HormoneName>FSH</HormoneName>
+              <HormoneValue>{result.hormoneData.fsh} {normalRanges.fsh.unit}</HormoneValue>
               <HormoneBarContainer>
                 <HormoneBar 
-                  percent={getPercentageOfRange('androstanolone', result.hormoneData.androstanolone)} 
-                  status={getHormoneStatus('androstanolone', result.hormoneData.androstanolone)}
+                  percent={getPercentageOfRange('fsh', result.hormoneData.fsh)} 
+                  status={getHormoneStatus('fsh', result.hormoneData.fsh)}
                 />
               </HormoneBarContainer>
             </HormoneStatus>
@@ -936,7 +918,7 @@ const ResultsDisplay = ({ result }) => {
                 <ChartTitle>Hormone Levels vs Normal Range</ChartTitle>
                 <ChartLegend>
                   <LegendItem>
-                    <LegendColor color="rgba(255, 89, 94, 0.7)" />
+                    <LegendColor color="rgba(255, 99, 132, 0.7)" />
                     Patient
                   </LegendItem>
                   <LegendItem>
@@ -1003,7 +985,14 @@ const ResultsDisplay = ({ result }) => {
                   </p>
                   <p style={{ marginBottom: '10px' }}>
                     <span style={{ color: 'var(--text-light)' }}>Most influential factor:</span> {' '}
-                    {featureImportance.length > 0 ? featureImportance[0].name : 'N/A'}
+                    {result.featureImportance ? 
+                      (Object.entries(result.featureImportance)
+                        .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
+                        .map(([name]) => name === 'free_testosterone' ? 'Testosterone' : 
+                                      name === 'dheas' ? 'DHEAS' : 
+                                      name === 'fsh' ? 'FSH' : name)[0]
+                      ) : 'N/A'
+                    }
                   </p>
                   <p style={{ marginBottom: '10px' }}>
                     <span style={{ color: 'var(--text-light)' }}>Diagnostic confidence:</span> {' '}

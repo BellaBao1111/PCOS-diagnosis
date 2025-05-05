@@ -10,9 +10,9 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [formData, setFormData] = useState({
-    epitestosterone: '',
-    insulin: '',
-    androstanolone: '',
+    free_testosterone: '',
+    dheas: '',
+    fsh: '',
   })
 
   const handleInputChange = (e) => {
@@ -35,9 +35,9 @@ function App() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          epitestosterone: parseFloat(formData.epitestosterone),
-          insulin: parseFloat(formData.insulin),
-          androstanolone: parseFloat(formData.androstanolone),
+          free_testosterone: parseFloat(formData.free_testosterone),
+          dheas: parseFloat(formData.dheas),
+          fsh: parseFloat(formData.fsh),
         }),
       })
       
@@ -56,9 +56,9 @@ function App() {
         probability: result.probability,
         decisionBoundaryDistance: result.decisionBoundaryDistance,
         hormoneData: {
-          epitestosterone: parseFloat(formData.epitestosterone),
-          insulin: parseFloat(formData.insulin),
-          androstanolone: parseFloat(formData.androstanolone),
+          free_testosterone: parseFloat(formData.free_testosterone),
+          dheas: parseFloat(formData.dheas),
+          fsh: parseFloat(formData.fsh),
         }
       })
     } catch (err) {

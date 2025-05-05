@@ -15,18 +15,18 @@ def predict():
         input_data = json.loads(sys.argv[1])
         print(f"Input data: {input_data}", file=sys.stderr)
         
-        # Extract features
-        epitestosterone = float(input_data['epitestosterone'])
-        insulin = float(input_data['insulin'])
-        androstanolone = float(input_data['androstanolone'])
+        # Extract features - updated to new hormone inputs
+        free_testosterone = float(input_data['free_testosterone'])
+        dheas = float(input_data['dheas'])
+        fsh = float(input_data['fsh'])
         
         # Get the current directory
         current_dir = os.path.dirname(os.path.abspath(__file__))
         print(f"Current directory: {current_dir}", file=sys.stderr)
         
         # Check if model files exist
-        model_path = os.path.join(current_dir, 'pcos_model3.pkl')
-        scaler_path = os.path.join(current_dir, 'pcos_scaler3.pkl')
+        model_path = os.path.join(current_dir, 'logistic_selected_model.pkl')
+        scaler_path = os.path.join(current_dir, 'scaler_selected_model.pkl')
         
         print(f"Model path: {model_path}", file=sys.stderr)
         print(f"Scaler path: {scaler_path}", file=sys.stderr)
@@ -38,7 +38,7 @@ def predict():
         scaler = joblib.load(scaler_path)
         
         # Prepare features
-        features = np.array([[epitestosterone, insulin, androstanolone]])
+        features = np.array([[free_testosterone, dheas, fsh]])
         print(f"Features: {features}", file=sys.stderr)
         
         # Scale features
@@ -68,9 +68,9 @@ def predict():
             'probability': probability.tolist(),
             'riskScore': round(probability[1] * 100),
             'featureImportance': {
-                'epitestosterone': feature_importance[0],
-                'insulin': feature_importance[1],
-                'androstanolone': feature_importance[2]
+                'free_testosterone': feature_importance[0],
+                'dheas': feature_importance[1],
+                'fsh': feature_importance[2]
             },
             'decisionBoundaryDistance': decision_function
         }

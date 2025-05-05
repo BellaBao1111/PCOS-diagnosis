@@ -4,7 +4,7 @@ const InfoContainer = styled.div`
   background-color: var(--card-bg);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
-  padding: 1.25rem;
+  padding: 1.5rem;
   margin-top: 1rem;
   border: 1px solid var(--border-color);
   height: auto;
@@ -14,7 +14,7 @@ const InfoHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
 `;
 
 const InfoTitle = styled.h3`
@@ -30,44 +30,46 @@ const InfoIcon = styled.span`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   background-color: rgba(25, 130, 196, 0.15);
   color: var(--secondary);
-  border-radius: 4px;
-  font-size: 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
 `;
 
 const InfoText = styled.p`
-  margin-bottom: 0.75rem;
-  line-height: 1.5;
+  margin-bottom: 1rem;
+  line-height: 1.6;
   color: var(--text-secondary);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 `;
 
 const KeyPointsContainer = styled.div`
   background-color: rgba(0, 0, 0, 0.15);
   border-radius: var(--border-radius);
-  padding: 0.75rem;
-  margin: 0.75rem 0;
+  padding: 1rem;
+  margin: 1rem 0;
+  border: 1px solid rgba(0, 0, 0, 0.2);
 `;
 
 const KeyPointsTitle = styled.div`
   color: var(--text-light);
   font-weight: 600;
-  margin-bottom: 0.5rem;
-  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
 `;
 
 const KeyPointsList = styled.ul`
   margin: 0;
-  padding-left: 1.25rem;
+  padding-left: 1.5rem;
 `;
 
 const KeyPoint = styled.li`
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   color: var(--text-secondary);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
   
   &:last-child {
     margin-bottom: 0;
@@ -84,12 +86,22 @@ const ButtonLink = styled.a`
   gap: 0.5rem;
   color: var(--secondary);
   text-decoration: none;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
+  transition: all 0.2s;
   
   &:hover {
     text-decoration: underline;
+    color: #2a95d7;
+  }
+  
+  svg {
+    transition: transform 0.2s;
+  }
+  
+  &:hover svg {
+    transform: translateX(2px);
   }
 `;
 
@@ -112,13 +124,13 @@ const InfoPanel = () => {
         <KeyPointsTitle>Key Diagnostic Indicators</KeyPointsTitle>
         <KeyPointsList>
           <KeyPoint>
-            <strong>Epitestosterone:</strong> Elevated levels ({'>'}5.0 ng/mL) may indicate PCOS
+            <strong>Testosterone:</strong> Elevated levels ({'>'}6.8 pg/mL) may indicate PCOS
           </KeyPoint>
           <KeyPoint>
-            <strong>Insulin:</strong> Higher insulin levels ({'>'}20.0 μIU/mL) suggest insulin resistance, common in PCOS
+            <strong>DHEAS:</strong> Higher dehydroepiandrosterone sulfate levels ({'>'}43 µg/dL) are associated with PCOS
           </KeyPoint>
           <KeyPoint>
-            <strong>Androstanolone:</strong> Elevated levels ({'>'}3.0 ng/mL) are often observed in PCOS patients
+            <strong>FSH:</strong> Follicle-stimulating hormone levels may be lower or in normal range (4.7-21.5 mIU/mL) in PCOS
           </KeyPoint>
         </KeyPointsList>
       </KeyPointsContainer>

@@ -51,7 +51,7 @@ html, body {
 
 .dashboard {
   display: grid;
-  grid-template-columns: 350px 1fr;
+  grid-template-columns: 380px 1fr;
   gap: 1.5rem;
   padding: 1.5rem;
   width: 100%;
@@ -109,19 +109,24 @@ html, body {
 
 .form-control {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--border-radius);
   background-color: rgba(0, 0, 0, 0.2);
   color: var(--text-light);
   font-size: 1rem;
   transition: all 0.2s;
+  height: 45px;
 }
 
 .form-control:focus {
   border-color: var(--secondary);
   outline: none;
   box-shadow: 0 0 0 2px rgba(25, 130, 196, 0.2);
+}
+
+.form-control::placeholder {
+  color: rgba(255, 255, 255, 0.3);
 }
 
 .button {
@@ -337,31 +342,47 @@ html, body {
 
 @media (max-width: 1200px) {
   .dashboard {
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 1fr 2fr;
   }
 }
 
 @media (max-width: 992px) {
   .dashboard {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
+    gap: 2rem;
   }
 }
 
 @media (max-width: 768px) {
   .dashboard {
-    grid-template-columns: 1fr;
+    padding: 1rem;
+    gap: 1.5rem;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .charts-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .chart-box {
-    height: 180px;
+    height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-container {
+    padding: 0.5rem;
+  }
+  
+  .dashboard {
+    padding: 0.5rem;
+    gap: 1rem;
+  }
+  
+  .card {
+    padding: 1rem;
   }
 }

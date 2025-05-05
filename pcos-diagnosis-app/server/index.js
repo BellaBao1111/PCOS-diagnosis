@@ -83,10 +83,10 @@ const startModelApi = () => {
 
 // API endpoint for PCOS diagnosis
 app.post('/api/diagnose', async (req, res) => {
-  const { epitestosterone, insulin, androstanolone } = req.body;
+  const { free_testosterone, dheas, fsh } = req.body;
   
   // Validate input
-  if (!epitestosterone || !insulin || !androstanolone) {
+  if (!free_testosterone || !dheas || !fsh) {
     return res.status(400).json({ error: 'Missing required hormone values' });
   }
   
@@ -97,7 +97,7 @@ app.post('/api/diagnose', async (req, res) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ epitestosterone, insulin, androstanolone }),
+      body: JSON.stringify({ free_testosterone, dheas, fsh }),
     });
     
     if (!response.ok) {
@@ -120,9 +120,9 @@ app.post('/api/diagnose', async (req, res) => {
 app.get('/api/ranges', (req, res) => {
   // Return normal ranges for each hormone
   res.json({
-    epitestosterone: { min: 0.5, max: 5.0, unit: 'ng/mL' },
-    insulin: { min: 2.0, max: 20.0, unit: 'μIU/mL' },
-    androstanolone: { min: 0.2, max: 3.0, unit: 'ng/mL' },
+    free_testosterone: { min: 0.1, max: 6.8, unit: 'pg/mL' },
+    dheas: { min: 35, max: 30, unit: 'µg/dL' },
+    fsh: { min: 4.7, max: 21.5, unit: 'mIU/mL' },
   });
 });
 

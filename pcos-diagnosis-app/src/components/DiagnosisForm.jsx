@@ -62,7 +62,7 @@ const TabsContainer = styled.div`
 const Tab = styled.div`
   padding: 0.75rem 1rem;
   cursor: pointer;
-  color: ${props => props.active ? 'var(--text-light)' : 'var(--text-secondary)'};
+  color: ${props => props.active === 'true' ? 'var(--text-light)' : 'var(--text-secondary)'};
   font-weight: 500;
   position: relative;
   
@@ -71,7 +71,7 @@ const Tab = styled.div`
     position: absolute;
     bottom: -1px;
     left: 0;
-    width: ${props => props.active ? '100%' : '0'};
+    width: ${props => props.active === 'true' ? '100%' : '0'};
     height: 2px;
     background-color: var(--primary);
   }
@@ -118,7 +118,7 @@ const FormRow = styled.div`
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 `;
 
 const FormLabel = styled.label`
@@ -128,6 +128,19 @@ const FormLabel = styled.label`
   color: var(--text-light);
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const LabelText = styled.span`
+  display: flex;
+  align-items: center;
+`;
+
+const UnitText = styled.span`
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 400;
 `;
 
 const FormControl = styled.input`
@@ -139,11 +152,17 @@ const FormControl = styled.input`
   color: var(--text-light);
   font-size: 1rem;
   transition: all 0.2s;
+  margin-top: 0.25rem;
+  height: 48px;
 
   &:focus {
     border-color: var(--secondary);
     outline: none;
     box-shadow: 0 0 0 2px rgba(25, 130, 196, 0.2);
+  }
+  
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.3);
   }
 `;
 
@@ -155,16 +174,22 @@ const HelpText = styled.small`
 `;
 
 const HelpIcon = styled.span`
-  width: 16px;
-  height: 16px;
-  background-color: rgba(255, 255, 255, 0.1);
+  width: 18px;
+  height: 18px;
+  background-color: rgba(25, 130, 196, 0.15);
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 11px;
   margin-left: 0.5rem;
-  color: var(--text-secondary);
+  color: var(--secondary);
+  cursor: help;
+  transition: all 0.2s;
+  
+  &:hover {
+    background-color: rgba(25, 130, 196, 0.3);
+  }
 `;
 
 const Loading = styled.div`
@@ -198,7 +223,7 @@ const DiagnosisForm = ({ formData, onChange, onDiagnose, loading }) => {
       
       <FormContent>
         <TabsContainer>
-          <Tab active={true}>Hormone Markers</Tab>
+          <Tab active="true">Hormone Markers</Tab>
           <Tab>Patient Details</Tab>
         </TabsContainer>
         
@@ -206,16 +231,18 @@ const DiagnosisForm = ({ formData, onChange, onDiagnose, loading }) => {
           <FieldsContainer>
             <FormRow>
               <FormGroup>
-                <FormLabel htmlFor="epitestosterone">
-                  Epitestosterone (ng/mL)
-                  <HelpIcon>?</HelpIcon>
+                <FormLabel htmlFor="free_testosterone">
+                  <LabelText>
+                    Testosterone
+                  </LabelText>
+                  <UnitText>(pg/mL)</UnitText>
                 </FormLabel>
                 <FormControl
                   type="number"
-                  id="epitestosterone"
-                  name="epitestosterone"
+                  id="free_testosterone"
+                  name="free_testosterone"
                   placeholder="Enter level"
-                  value={formData.epitestosterone}
+                  value={formData.free_testosterone}
                   onChange={onChange}
                   step="0.1"
                   min="0"
@@ -224,16 +251,18 @@ const DiagnosisForm = ({ formData, onChange, onDiagnose, loading }) => {
                 />
               </FormGroup>
               <FormGroup>
-                <FormLabel htmlFor="insulin">
-                  Insulin (μIU/mL)
-                  <HelpIcon>?</HelpIcon>
+                <FormLabel htmlFor="dheas">
+                  <LabelText>
+                    DHEAS
+                  </LabelText>
+                  <UnitText>(µg/dL)</UnitText>
                 </FormLabel>
                 <FormControl
                   type="number"
-                  id="insulin"
-                  name="insulin"
+                  id="dheas"
+                  name="dheas"
                   placeholder="Enter level"
-                  value={formData.insulin}
+                  value={formData.dheas}
                   onChange={onChange}
                   step="0.1"
                   min="0"
@@ -245,16 +274,18 @@ const DiagnosisForm = ({ formData, onChange, onDiagnose, loading }) => {
 
             <FormRow>
               <FormGroup className="full-width">
-                <FormLabel htmlFor="androstanolone">
-                  Androstanolone (ng/mL)
-                  <HelpIcon>?</HelpIcon>
+                <FormLabel htmlFor="fsh">
+                  <LabelText>
+                    FSH
+                  </LabelText>
+                  <UnitText>(mIU/mL)</UnitText>
                 </FormLabel>
                 <FormControl
                   type="number"
-                  id="androstanolone"
-                  name="androstanolone"
+                  id="fsh"
+                  name="fsh"
                   placeholder="Enter level"
-                  value={formData.androstanolone}
+                  value={formData.fsh}
                   onChange={onChange}
                   step="0.1"
                   min="0"
