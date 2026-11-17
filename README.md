@@ -9,19 +9,26 @@ A visual and user-friendly dashboard for diagnosing Polycystic Ovary Syndrome (P
 - **PCOS Risk Assessment**: Calculate PCOS likelihood based on hormone profiles
 - **Responsive Design**: Works seamlessly across desktop and mobile devices
 
+## How it works
+
+- **Front end:** React + Vite, Material UI and Chart.js (`pcos-diagnosis-app/src`).
+- **API:** an Express server (`server/index.js`) that starts and proxies to a Flask model API (`server/model_api.py`).
+- **Model:** a logistic regression trained on hormone markers, with its fitted scaler, saved as pickles in `server/`.
+
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js (v14.0.0 or higher)
 - npm (v6.0.0 or higher)
+- Python 3 (the Express server starts a small Flask API that serves the model)
 
 ### Installation
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/pcos-diagnosis-app.git
-cd pcos-diagnosis-app
+git clone https://github.com/BellaBao1111/PCOS-diagnosis.git
+cd PCOS-diagnosis/pcos-diagnosis-app
 ```
 
 2. Install dependencies
